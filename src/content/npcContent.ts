@@ -24,21 +24,6 @@ export const NPC_ROLE_TAGS_GENERIC: Record<MissionType, string[]> = {
   'Negotiation-gone-wrong': ['Rival Negotiator', 'Hired Backup'],
 };
 
-export const NPC_SPECIALS = [
-  'Called shot specialist: +1D on ranged called shots',
-  'Carries a heavy pistol and two spare clips',
-  'Wired reflexes: acts first in any surprise exchange',
-  'Runs with a trained guard dog or drone escort',
-  'Astrally perceptive — notices magical intrusion fast',
-  'Networked: can call in backup within a few minutes',
-  'Carries a taser and prefers to subdue, not kill',
-  'Expert tracker: hard to lose once they\'re on your trail',
-  'Decker support on comms, feeding real-time intel',
-  'Heavily armored: soak rolls at advantage vs. small arms',
-  'Knows the location\'s layout better than any blueprint would show',
-  'Has a personal reason to want this to go badly for the party',
-];
-
 export const NPC_QUICK_LINES = [
   'Bored and underpaid — looking for an excuse to clock out early.',
   'Fiercely loyal to their boss, to a fault.',

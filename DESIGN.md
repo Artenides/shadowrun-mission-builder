@@ -237,24 +237,36 @@ Each generated mission renders as a card with:
 - **Narrative thread note** (DM-only framing, clearly labeled as such in the UI) — how this mission secretly connects (or doesn't) to the wider arc, so the DM has the answer key even though players shouldn't be told directly
 - **NPCs** (optional, collapsed by default) — see §8
 
-## 8. NPC stat blocks (Anarchy 2.0-flavored)
+## 8. NPC stat blocks (real Anarchy 2.0 mechanics)
 
-Kept lightweight, matching Anarchy's narrative dice-pool system rather than full Shadowrun 5/6E crunch:
+Early builds used an invented abstraction (a single aggregate "dice pool" + "soak" + "condition boxes") that doesn't correspond to anything in the actual ruleset. NPCs now follow the rulebook's own "Regular NPC" convention (Managing NPCs, p. 81) — the same format the book uses for its own ready-to-use NPCs (Ganger, Security Guard, etc.):
 
 ```
-NAME / ROLE TAG  (e.g., "Lead Enforcer — Human, ganger captain")
+NAME / ROLE TAG, METATYPE          (e.g., "Nadia Marsh — Convoy Driver, Ork")
 Threat Tier:      Mook | Named | Boss
-Dice Pool:        XD6           (single aggregate pool, tier-scaled)
-Soak:             X
-Condition Boxes:  X   [□□□□□□]
-Edge:             X (Named/Boss only)
-Special:          1–2 tagged abilities in plain language
-                  ("Called shot specialist: +1D on ranged called shots",
-                   "Ares Predator, 2x grenades")
-Quick line:       one-sentence personality/behavior note for improv
+
+STR   AGI   WIL   LOG   CHA
+ 4     3     3     2     2
+Edge: 3                           (Named/Boss only — Mooks are Regular NPCs, no Edge)
+
+SKILLS
+Close Combat (defense)  4 hits   (3+A, RR 0)
+Athletics               3 hits   (1+S, RR 0)
+Perception              2 hits   (1+L, RR 0)
+
+Equipment: Armored clothing with heavy coat, Katana
+Physical 4/7/10 · Mental 2/5/8 · High fighting spirit
+Quick line: "Nervous, trigger-happy, and new to the job."
 ```
 
-Mook squads are generated as a single statline with a headcount rather than individual blocks, matching Anarchy's "mob" handling. Quick-reference mode (Q16) shows only Dice Pool/Soak/Condition/Special; full mode adds Edge and gear notes.
+- **5 Attributes** (Strength, Agility, Willpower, Logic, Charisma), rated 1–4 for most metatypes (higher ranges for some — Ork Strength 1–5, Troll Strength 1–6, Elf Charisma 1–5, Dwarf Willpower 1–5), scaled by the campaign's power tier and the NPC's threat tier. Metatype is picked weighted by the city's own metahuman mix (§5.2), so NPCs stay demographically consistent with their city.
+- **2–3 Skills**, each shown as the book does: the precomputed average-hits threshold a GM rolls against directly, with the underlying Skill rating + linked Attribute + Risk Reduction alongside it (`rating+Attribute, RR n`), per the formula `average hits = round((Skill [+2 if specialized] + Attribute) / 3) + RR + 1`. Skills are drawn from an archetype inferred from the mission type (Combat/Social/Technical/Magical/Rigger), not randomly, so a decker-flavored mission gets Cracking/Electronics, a social one gets Influence/Network, etc.
+- **Equipment**: 2–3 flavorful item names (a weapon, armor, a commlink) — deliberately *not* carrying their own stats, since that level of crunch belongs to the GM's table, not a generated handout.
+- **Wound thresholds** (Physical and Mental, each a light/serious/deadly triplet) and a **Fighting Spirit** rating (Null/Low/High/Extreme), both taken from the rulebook's own reference tables rather than invented.
+- **Edge**: only Named/Boss-tier NPCs get it (mirroring the book's Prime vs. Regular NPC distinction) — Mooks are always Regular NPCs with no Edge.
+- **Quick line**: the one-sentence RP/personality note for improv — unchanged from earlier builds.
+
+Mook squads are generated as a single statline with a headcount rather than individual blocks, matching Anarchy's "mob" handling. Quick-reference mode (Q16) hides the underlying Skill+Attribute+RR notation and just shows the average-hits number; full mode shows the complete notation plus wound thresholds and fighting spirit.
 
 ## 9. UI/UX flow
 

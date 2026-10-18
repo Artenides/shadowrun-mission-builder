@@ -125,16 +125,45 @@ export interface CityProfile {
 
 export type ThreatTier = 'Mook' | 'Named' | 'Boss';
 
+export type Metatype = 'Human' | 'Elf' | 'Dwarf' | 'Ork' | 'Troll';
+
+export type AttributeKey = 'strength' | 'agility' | 'willpower' | 'logic' | 'charisma';
+
+/** The 5 Anarchy 2.0 Attributes (Strength, Agility, Willpower, Logic, Charisma), rated 1-4 for
+ * most metatypes (higher for some — see content/anarchyRules.ts). Edge is tracked separately,
+ * only on Named/Boss NPCs (the "Prime NPC" convention — Regular NPCs don't get Edge). */
+export interface NpcAttributes {
+  strength: number;
+  agility: number;
+  willpower: number;
+  logic: number;
+  charisma: number;
+}
+
+/** One Skill line in the book's own notation: average hits is the precomputed threshold a GM
+ * rolls against (Regular NPC convention), with the underlying Skill rating + linked Attribute
+ * shown alongside it, e.g. "Ranged Weapons 5 (pistols) (6+A, RR 1)". */
+export interface NpcSkillLine {
+  name: string;
+  rating: number; // Skill rating, 0-8
+  attribute: AttributeKey;
+  specialization?: string;
+  riskReduction: number; // RR 0-3
+  averageHits: number; // precomputed threshold: round((rating + attribute [+2 if specialized]) / 3) + RR + 1
+}
+
 export interface NpcBlock {
   name: string;
   roleTag: string;
+  metatype: Metatype;
   threatTier: ThreatTier;
   headcount?: number; // present for Mook squads
-  dicePool: number;
-  soak: number;
-  conditionBoxes: number;
-  edge?: number;
-  specials: string[];
+  attributes: NpcAttributes;
+  edge?: number; // Named/Boss only (Prime NPC convention)
+  skills: NpcSkillLine[];
+  equipment: string[]; // 2-3 flavorful items, no attached stats
+  woundThresholds: { physical: [number, number, number]; mental: [number, number, number] };
+  fightingSpirit: 'Null' | 'Low' | 'High' | 'Extreme';
   quickLine: string;
 }
 

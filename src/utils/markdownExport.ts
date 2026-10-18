@@ -1,12 +1,26 @@
 import type { Campaign, Mission, NpcBlock, NpcCrunch } from '../engine/types';
+import { ATTRIBUTE_LABEL, ATTRIBUTE_LETTER } from '../content/anarchyRules';
 
 function npcToMarkdown(npc: NpcBlock, crunch: NpcCrunch): string {
+  const attrLine = (['strength', 'agility', 'willpower', 'logic', 'charisma'] as const)
+    .map((key) => `${ATTRIBUTE_LABEL[key]} ${npc.attributes[key]}`)
+    .join(' · ');
+
   const lines = [
-    `- **${npc.name}** — ${npc.roleTag} (${npc.threatTier}${npc.headcount ? ` x${npc.headcount}` : ''})`,
-    `  - Dice Pool ${npc.dicePool}D6 · Soak ${npc.soak} · Condition Boxes ${npc.conditionBoxes}`,
+    `- **${npc.name}** — ${npc.roleTag}, ${npc.metatype} (${npc.threatTier}${npc.headcount ? ` x${npc.headcount}` : ''})`,
+    `  - ${attrLine}${npc.edge !== undefined ? ` · Edge ${npc.edge}` : ''}`,
   ];
-  if (crunch === 'full' && npc.edge !== undefined) lines.push(`  - Edge ${npc.edge}`);
-  if (npc.specials.length) lines.push(`  - Special: ${npc.specials.join('; ')}`);
+  for (const skill of npc.skills) {
+    const spec = skill.specialization ? ` (${skill.specialization})` : '';
+    const detail = crunch === 'full' ? ` (${skill.rating}+${ATTRIBUTE_LETTER[skill.attribute]}, RR ${skill.riskReduction})` : '';
+    lines.push(`  - ${skill.name}${spec} ${skill.averageHits} hits${detail}`);
+  }
+  if (npc.equipment.length) lines.push(`  - Equipment: ${npc.equipment.join(', ')}`);
+  if (crunch === 'full') {
+    lines.push(
+      `  - Wound thresholds — Physical ${npc.woundThresholds.physical.join('/')}, Mental ${npc.woundThresholds.mental.join('/')} · ${npc.fightingSpirit} fighting spirit`,
+    );
+  }
   lines.push(`  - *${npc.quickLine}*`);
   return lines.join('\n');
 }

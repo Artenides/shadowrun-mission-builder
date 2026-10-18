@@ -550,26 +550,88 @@ button.primary:hover:not(:disabled) {
   color: var(--danger);
 }
 
-.npc-stats {
+.npc-attributes {
   display: flex;
-  gap: 14px;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-top: 6px;
+  gap: 10px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
-.npc-specials {
-  margin: 8px 0 0;
-  padding-left: 18px;
+.npc-attribute {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.npc-attribute-label {
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.npc-attribute-value {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.npc-skills {
+  margin: 10px 0 0;
+  padding-left: 0;
+  list-style: none;
   font-size: 0.82rem;
+}
+
+.npc-skills li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 3px 0;
+  border-top: 1px solid var(--border);
+}
+
+.npc-skills li:first-child {
+  border-top: none;
+}
+
+.npc-skill-name {
+  color: var(--text);
+}
+
+.npc-skill-hits {
+  color: var(--accent);
+  font-weight: 600;
+  font-family: var(--mono);
+}
+
+.npc-skill-detail {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.npc-equipment {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
+.npc-wounds {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  margin-top: 4px;
 }
 
 .npc-quickline {
   font-style: italic;
   color: var(--text-dim);
   font-size: 0.82rem;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 /* ---------- Print ---------- */
