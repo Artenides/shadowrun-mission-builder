@@ -1,6 +1,6 @@
 # Shadowline — Shadowrun: Anarchy 2.0 Campaign Generator
 
-A browser-based tool for GMs running **Shadowrun: Anarchy 2.0**. Answer a 15-question wizard
+A browser-based tool for GMs running **Shadowrun: Anarchy 2.0**. Answer a few questions
 about your table and setting, and it generates a connected mission campaign grounded in a
 procedurally generated city — complete with districts, stakeholders, hidden narrative threads,
 deliberate flavor outliers, and optional Anarchy-style NPC stat blocks.
@@ -8,15 +8,6 @@ deliberate flavor outliers, and optional Anarchy-style NPC stat blocks.
 See [`DESIGN.md`](./DESIGN.md) for the full design document (architecture, generation pipeline,
 content model, etc.). This README covers running and deploying the implementation.
 
-## Why there's no "database"
-
-This is a 100% static site (no backend, no database — it's hosted free on GitHub Pages) and the
-generation logic ships to the browser as regular JavaScript, so it can technically be read by
-anyone who opens dev tools. Rather than trying to hide that (impossible on a static site), the
-design removes the thing worth stealing: there is no flat list of finished missions or cities
-anywhere. Content is built from small reusable fragments (location beats, complication beats,
-corp/gang name parts, NPC archetypes) combined at generation time via a seeded PRNG. Reading the
-source gets you the Lego bricks, not a shelf of finished models.
 
 ## Running locally
 
