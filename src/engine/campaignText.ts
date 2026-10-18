@@ -1,4 +1,5 @@
 import { pick, chance, type Rng } from '../rng/seed';
+import { possessive } from './grammar';
 import type { CampaignInputs, CityProfile, Stakeholder } from './types';
 
 const TITLE_TEMPLATES = [
@@ -29,7 +30,7 @@ export function generateCampaignSummary(
   const engine =
     city.economicEngine.length > 0 ? ` Its economy runs on ${city.economicEngine.join(' and ').toLowerCase()}.` : '';
   const orbit = mainStakeholder
-    ? ` Over ${inputs.missionCount} jobs, the party will find themselves pulled — quietly at first — into ${mainStakeholder.name}'s orbit.`
+    ? ` Over ${inputs.missionCount} jobs, the party will find themselves pulled — quietly at first — into ${possessive(mainStakeholder.name)} orbit.`
     : ` Over ${inputs.missionCount} jobs, the party will work their way through the city's underbelly without ever quite seeing the whole picture.`;
   const outlierNote =
     inputs.outlierRatio > 50

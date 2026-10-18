@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Campaign } from '../engine/types';
+import type { ThemeId } from './themes';
 import CityDossier from './CityDossier';
 import MissionCard from './MissionCard';
 import { campaignToMarkdown } from '../utils/markdownExport';
@@ -7,16 +8,16 @@ import { buildShareUrl } from '../utils/seedUrl';
 
 interface CampaignViewProps {
   campaign: Campaign;
+  theme: ThemeId;
   onRegenerateAll: () => void;
-  onRegenerateMission: (index: number) => void;
   onRegenerateCityName: () => void;
   onEditInputs: () => void;
 }
 
 export default function CampaignView({
   campaign,
+  theme,
   onRegenerateAll,
-  onRegenerateMission,
   onRegenerateCityName,
   onEditInputs,
 }: CampaignViewProps) {
@@ -39,10 +40,10 @@ export default function CampaignView({
   }
 
   async function handleCopyShareLink() {
-    const url = buildShareUrl(campaign.inputs);
+    const url = buildShareUrl(campaign.inputs, theme);
     try {
       await navigator.clipboard.writeText(url);
-      flashStatus('Share link copied — reopening it reproduces this exact campaign.');
+      flashStatus('Share link copied — reopening it reproduces this campaign in this same theme.');
     } catch {
       flashStatus(url);
     }
@@ -50,25 +51,43 @@ export default function CampaignView({
 
   return (
     <div className="campaign-view">
-      <div className="campaign-toolbar">
-        <button type="button" onClick={onEditInputs}>
-          Edit answers
-        </button>
-        <button type="button" onClick={onRegenerateAll}>
-          New campaign (random seed)
-        </button>
-        <button type="button" onClick={() => setShowThreadNotes((v) => !v)}>
-          {showThreadNotes ? 'Hide' : 'Show'} DM thread notes
-        </button>
-        <button type="button" onClick={handleCopyMarkdown}>
-          Copy as Markdown
-        </button>
-        <button type="button" onClick={handleCopyShareLink}>
-          Share seed
-        </button>
-        <button type="button" onClick={() => window.print()}>
-          Print / PDF
-        </button>
+      <div className="toolbar">
+        <div className="toolbar-group">
+          <button type="button" className="toolbar-btn" onClick={onEditInputs}>
+            Edit answers
+          </button>
+          <button type="button" className="toolbar-btn" onClick={onRegenerateAll}>
+            New campaign
+          </button>
+        </div>
+
+        <div className="toolbar-divider" />
+
+        <label className="toolbar-switch" title="Show the DM-only notes on how each mission secretly connects">
+          <input
+            type="checkbox"
+            checked={showThreadNotes}
+            onChange={(e) => setShowThreadNotes(e.target.checked)}
+          />
+          <span className="switch-track">
+            <span className="switch-thumb" />
+          </span>
+          DM thread notes
+        </label>
+
+        <div className="toolbar-divider" />
+
+        <div className="toolbar-group">
+          <button type="button" className="toolbar-btn" onClick={handleCopyMarkdown}>
+            Copy Markdown
+          </button>
+          <button type="button" className="toolbar-btn" onClick={handleCopyShareLink}>
+            Share link
+          </button>
+          <button type="button" className="toolbar-btn" onClick={() => window.print()}>
+            Print / PDF
+          </button>
+        </div>
       </div>
       {statusMessage && <p className="status-message">{statusMessage}</p>}
 
@@ -89,7 +108,6 @@ export default function CampaignView({
             mission={mission}
             npcCrunch={campaign.inputs.npcCrunch}
             showThreadNotes={showThreadNotes}
-            onRegenerate={() => onRegenerateMission(mission.index)}
           />
         ))}
       </div>

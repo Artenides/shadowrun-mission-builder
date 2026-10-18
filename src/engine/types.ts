@@ -39,18 +39,20 @@ export interface CampaignInputs {
   partyRoles: PartyRole[];
   partySize: number;
   powerTier: PowerTier;
+  cityNameOverride: string;
+  citySize: CityTier;
   region: Region;
-  urbanFrontier: number; // 0 = full megacity sprawl .. 100 = full frontier
-  missionCount: number;
+  cityScope: CityScope;
+  urbanFrontier: number; // density/lawlessness lean within the chosen city size — 0 = dense sprawl .. 100 = frontier-ish
   tone: Tone;
   antagonistFlavor: AntagonistFlavor;
   moralComplexity: MoralComplexity;
-  outlierRatio: number; // 0 = tightly woven .. 100 = loosely connected
+  missionCount: number;
+  enabledMissionTypes: MissionType[];
+  outlierRatio: number; // 0 = tightly woven .. 100 = loosely connected (driven by a 3-way preset, not a free slider)
   includeNpcs: boolean;
   npcCrunch: NpcCrunch;
   seedPhrase: string;
-  cityNameOverride: string;
-  cityScope: CityScope;
 }
 
 export type StakeholderType =

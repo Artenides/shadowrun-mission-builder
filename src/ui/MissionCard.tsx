@@ -6,10 +6,9 @@ interface MissionCardProps {
   mission: Mission;
   npcCrunch: NpcCrunch;
   showThreadNotes: boolean;
-  onRegenerate: () => void;
 }
 
-export default function MissionCard({ mission, npcCrunch, showThreadNotes, onRegenerate }: MissionCardProps) {
+export default function MissionCard({ mission, npcCrunch, showThreadNotes }: MissionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -53,10 +52,6 @@ export default function MissionCard({ mission, npcCrunch, showThreadNotes, onReg
             ))}
           </div>
         )}
-
-        <button type="button" className="regenerate-button" onClick={onRegenerate}>
-          Regenerate this mission
-        </button>
       </div>
     </div>
   );

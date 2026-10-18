@@ -1,75 +1,25 @@
 import type { CampaignInputs } from '../engine/types';
+import type { ThemeId } from '../ui/themes';
+import { encodeShareToken, decodeShareToken, type SharedState } from './compactShare';
 
-const KEYS = {
-  partyRoles: 'pr',
-  partySize: 'ps',
-  powerTier: 'pt',
-  region: 'rg',
-  urbanFrontier: 'uf',
-  missionCount: 'mc',
-  tone: 'tn',
-  antagonistFlavor: 'af',
-  moralComplexity: 'mx',
-  outlierRatio: 'or',
-  includeNpcs: 'in',
-  npcCrunch: 'nc',
-  seedPhrase: 'sd',
-  cityNameOverride: 'cn',
-  cityScope: 'cs',
-} as const;
+const TOKEN_KEY = 'c';
 
-export function inputsToSearchParams(inputs: CampaignInputs): URLSearchParams {
-  const params = new URLSearchParams();
-  params.set(KEYS.partyRoles, inputs.partyRoles.join('|'));
-  params.set(KEYS.partySize, String(inputs.partySize));
-  params.set(KEYS.powerTier, inputs.powerTier);
-  params.set(KEYS.region, inputs.region);
-  params.set(KEYS.urbanFrontier, String(inputs.urbanFrontier));
-  params.set(KEYS.missionCount, String(inputs.missionCount));
-  params.set(KEYS.tone, inputs.tone);
-  params.set(KEYS.antagonistFlavor, inputs.antagonistFlavor);
-  params.set(KEYS.moralComplexity, inputs.moralComplexity);
-  params.set(KEYS.outlierRatio, String(inputs.outlierRatio));
-  params.set(KEYS.includeNpcs, inputs.includeNpcs ? '1' : '0');
-  params.set(KEYS.npcCrunch, inputs.npcCrunch);
-  params.set(KEYS.seedPhrase, inputs.seedPhrase);
-  params.set(KEYS.cityNameOverride, inputs.cityNameOverride);
-  params.set(KEYS.cityScope, inputs.cityScope);
-  return params;
-}
-
-export function searchParamsToInputs(params: URLSearchParams, fallback: CampaignInputs): CampaignInputs {
-  const get = (k: string, def: string) => params.get(k) ?? def;
-  return {
-    partyRoles: get(KEYS.partyRoles, fallback.partyRoles.join('|'))
-      .split('|')
-      .filter(Boolean) as CampaignInputs['partyRoles'],
-    partySize: Number(get(KEYS.partySize, String(fallback.partySize))),
-    powerTier: get(KEYS.powerTier, fallback.powerTier) as CampaignInputs['powerTier'],
-    region: get(KEYS.region, fallback.region) as CampaignInputs['region'],
-    urbanFrontier: Number(get(KEYS.urbanFrontier, String(fallback.urbanFrontier))),
-    missionCount: Number(get(KEYS.missionCount, String(fallback.missionCount))),
-    tone: get(KEYS.tone, fallback.tone) as CampaignInputs['tone'],
-    antagonistFlavor: get(KEYS.antagonistFlavor, fallback.antagonistFlavor) as CampaignInputs['antagonistFlavor'],
-    moralComplexity: get(KEYS.moralComplexity, fallback.moralComplexity) as CampaignInputs['moralComplexity'],
-    outlierRatio: Number(get(KEYS.outlierRatio, String(fallback.outlierRatio))),
-    includeNpcs: get(KEYS.includeNpcs, fallback.includeNpcs ? '1' : '0') === '1',
-    npcCrunch: get(KEYS.npcCrunch, fallback.npcCrunch) as CampaignInputs['npcCrunch'],
-    seedPhrase: get(KEYS.seedPhrase, fallback.seedPhrase),
-    cityNameOverride: get(KEYS.cityNameOverride, fallback.cityNameOverride),
-    cityScope: get(KEYS.cityScope, fallback.cityScope) as CampaignInputs['cityScope'],
-  };
-}
-
-export function buildShareUrl(inputs: CampaignInputs): string {
-  const params = inputsToSearchParams(inputs);
+/**
+ * Builds a share URL carrying one compact token (bit-packed campaign inputs +
+ * theme, base64url-encoded — see utils/compactShare.ts) instead of ~17
+ * separate spelled-out query params.
+ */
+export function buildShareUrl(inputs: CampaignInputs, theme: ThemeId): string {
+  const token = encodeShareToken(inputs, theme);
   const url = new URL(window.location.href);
-  url.search = params.toString();
+  url.search = '';
+  url.searchParams.set(TOKEN_KEY, token);
   return url.toString();
 }
 
-export function readInputsFromLocation(fallback: CampaignInputs): CampaignInputs | null {
-  const params = new URLSearchParams(window.location.search);
-  if (params.size === 0) return null;
-  return searchParamsToInputs(params, fallback);
+/** Reads and decodes the share token from the current URL, if any. */
+export function readSharedStateFromLocation(fallback: CampaignInputs): SharedState | null {
+  const token = new URLSearchParams(window.location.search).get(TOKEN_KEY);
+  if (!token) return null;
+  return decodeShareToken(token, fallback);
 }

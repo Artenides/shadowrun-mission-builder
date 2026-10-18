@@ -1,19 +1,23 @@
 :root {
-  --bg: #0e0f14;
-  --bg-panel: #16181f;
-  --bg-panel-alt: #1c1f29;
-  --border: #2b2e3a;
-  --text: #c7cad1;
-  --text-h: #f3f4f6;
-  --text-dim: #8a8d99;
-  --accent: #39d6c8;
-  --accent-strong: #1fb3a6;
-  --accent-bg: rgba(57, 214, 200, 0.12);
-  --warn: #e0a940;
-  --danger: #e05454;
+  /* Matrix (default) */
+  --bg: #050a07;
+  --bg-panel: #0a140e;
+  --bg-panel-alt: #0e1c13;
+  --border: #1d4a2c;
+  --text: #a9d9b8;
+  --text-h: #d6ffe4;
+  --text-dim: #5e8f70;
+  --accent: #39ff8a;
+  --accent-strong: #1fdb6c;
+  --accent-bg: rgba(57, 255, 138, 0.12);
+  --accent-glow: rgba(57, 255, 138, 0.45);
+  --warn: #ffcc33;
+  --danger: #ff3b4e;
 
-  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --heading-transform: uppercase;
+  --heading-tracking: 1px;
 
   font: 16px/1.5 var(--sans);
   color-scheme: dark;
@@ -25,14 +29,89 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root[data-theme='nexus'] {
+  --bg: #0a0f1c;
+  --bg-panel: #10172a;
+  --bg-panel-alt: #151d33;
+  --border: #26314d;
+  --text: #aab4c9;
+  --text-h: #eef2fb;
+  --text-dim: #6b7690;
+  --accent: #4da8ff;
+  --accent-strong: #2f8aed;
+  --accent-bg: rgba(77, 168, 255, 0.12);
+  --accent-glow: rgba(77, 168, 255, 0.18);
+  --warn: #ffb020;
+  --danger: #ff5470;
+
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --heading-transform: none;
+  --heading-tracking: normal;
+}
+
+:root[data-theme='lab'] {
+  --bg: #0b0f10;
+  --bg-panel: #11171a;
+  --bg-panel-alt: #161e21;
+  --border: #2a3a3e;
+  --text: #b7c7ca;
+  --text-h: #eef8f9;
+  --text-dim: #647477;
+  --accent: #38d9e8;
+  --accent-strong: #1fb8c9;
+  --accent-bg: rgba(56, 217, 232, 0.12);
+  --accent-glow: rgba(56, 217, 232, 0.2);
+  --warn: #ffb347;
+  --danger: #ff5a5a;
+
+  --sans: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --heading-transform: none;
+  --heading-tracking: normal;
+}
+
 * {
   box-sizing: border-box;
 }
 
+/* Matrix: scanlines + a terminal-glow vignette at the top. */
 body {
   margin: 0;
-  background: var(--bg);
   min-height: 100svh;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--accent) 3%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 3%, transparent) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%),
+    var(--bg);
+}
+
+/* Nexus: no scanlines — a single soft hero-style glow, like a modern dashboard's header banner. */
+:root[data-theme='nexus'] body {
+  background: radial-gradient(ellipse 900px 420px at 50% -8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%), var(--bg);
+}
+
+/* Lab: a two-axis grid, like graph paper or an instrument readout — no vignette. */
+:root[data-theme='lab'] body {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--accent) 5%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 5%, transparent) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent) 5%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 5%, transparent) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    var(--bg);
 }
 
 #root {
@@ -44,6 +123,7 @@ h1, h2, h3 {
   font-weight: 600;
   color: var(--text-h);
   margin: 0 0 8px;
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 p {
@@ -64,6 +144,29 @@ button {
 
 a {
   color: var(--accent);
+}
+
+::selection {
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-panel);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-strong);
 }
 
 @media print {

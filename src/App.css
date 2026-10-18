@@ -10,10 +10,13 @@
 }
 
 .app-header h1 {
-  font-size: 2.4rem;
-  letter-spacing: 1px;
+  /* The brand name reads the same everywhere — themes vary color/glow/shape below,
+     not whether "Shadowline" itself is upper-cased. */
+  font-size: 2.6rem;
+  letter-spacing: 0.5px;
+  text-transform: none;
   color: var(--accent);
-  text-transform: uppercase;
+  text-shadow: 0 0 12px var(--accent-glow), 0 0 28px var(--accent-glow);
 }
 
 .tagline {
@@ -21,11 +24,58 @@
   margin: 0;
 }
 
-.app-footer {
-  text-align: center;
+/* ---------- Theme switcher ---------- */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.theme-switcher-label {
+  font-size: 0.75rem;
   color: var(--text-dim);
-  font-size: 0.8rem;
-  margin-top: 48px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.theme-switcher-options {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.theme-swatch:hover {
+  border-color: var(--preview-color);
+  color: var(--text);
+}
+
+.theme-swatch.active {
+  border-color: var(--preview-color);
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--preview-color) 14%, transparent);
+}
+
+.theme-swatch-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--preview-color);
+  box-shadow: 0 0 6px var(--preview-color);
 }
 
 /* ---------- Wizard ---------- */
@@ -35,6 +85,9 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px;
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 6%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--accent) 3%, transparent);
 }
 
 .wizard-steps {
@@ -50,11 +103,14 @@
   border-radius: 20px;
   border: 1px solid var(--border);
   color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .wizard-step-pill.active {
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .wizard-step-pill.done {
@@ -104,6 +160,7 @@
   background: var(--accent-bg);
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 input[type='text'] {
@@ -144,6 +201,7 @@ button {
 
 button:hover:not(:disabled) {
   border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 button:disabled {
@@ -153,18 +211,113 @@ button:disabled {
 
 button.primary {
   background: var(--accent-strong);
-  color: #04221f;
+  color: #04160c;
   border-color: var(--accent-strong);
   font-weight: 600;
+  text-transform: var(--heading-transform);
+  letter-spacing: var(--heading-tracking);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+button.primary:hover:not(:disabled) {
+  box-shadow: 0 0 20px var(--accent-glow);
 }
 
 /* ---------- Campaign view ---------- */
 
-.campaign-toolbar {
+.toolbar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.toolbar-btn:hover:not(:disabled) {
+  background: var(--bg-panel-alt);
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.toolbar-switch {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toolbar-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 10px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.toolbar-switch input:checked + .switch-track {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+.toolbar-switch input:checked + .switch-track .switch-thumb {
+  background: var(--accent);
+  transform: translateX(16px);
+}
+
+.toolbar-switch input:focus-visible + .switch-track {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .status-message {
@@ -179,6 +332,7 @@ button.primary {
   border-radius: 10px;
   padding: 16px 20px;
   margin-bottom: 16px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
 .campaign-summary {
@@ -194,10 +348,11 @@ button.primary {
 
 .city-dossier {
   background: var(--bg-panel);
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-strong);
   border-radius: 10px;
   padding: 16px 20px;
   margin-bottom: 20px;
+  box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .city-header h2 {
@@ -258,6 +413,12 @@ button.primary {
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.mission-card:hover {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .mission-outlier {
@@ -292,6 +453,8 @@ button.primary {
   color: var(--accent);
   border-radius: 12px;
   padding: 3px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .outlier-badge {
@@ -300,6 +463,8 @@ button.primary {
   border: 1px solid var(--warn);
   border-radius: 10px;
   padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .mission-card-body {
@@ -339,11 +504,6 @@ button.primary {
   margin-top: 16px;
 }
 
-.regenerate-button {
-  margin-top: 16px;
-  font-size: 0.8rem;
-}
-
 /* ---------- NPC blocks ---------- */
 
 .npc-block {
@@ -371,10 +531,12 @@ button.primary {
   border-radius: 10px;
   padding: 2px 8px;
   margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .npc-tier-mook {
-  background: rgba(138, 141, 153, 0.2);
+  background: color-mix(in srgb, var(--text-dim) 20%, transparent);
   color: var(--text-dim);
 }
 
@@ -384,7 +546,7 @@ button.primary {
 }
 
 .npc-tier-boss {
-  background: rgba(224, 84, 84, 0.15);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
   color: var(--danger);
 }
 
@@ -413,10 +575,210 @@ button.primary {
 /* ---------- Print ---------- */
 
 @media print {
-  .campaign-toolbar, .regenerate-button, .icon-button, .expand-caret {
+  .toolbar, .icon-button, .expand-caret {
     display: none !important;
   }
   .mission-card-body.collapsed {
     display: block !important;
   }
+}
+
+/* =====================================================================
+   Theme: Nexus — soft elevated cards, generous whitespace, a dashboard
+   layout rather than a terminal one. Lists become card grids, badges
+   become solid filled tags, panels lift on hover instead of glowing.
+   ===================================================================== */
+
+[data-theme='nexus'] .app-shell {
+  max-width: 960px;
+}
+
+[data-theme='nexus'] .wizard,
+[data-theme='nexus'] .campaign-header,
+[data-theme='nexus'] .city-dossier,
+[data-theme='nexus'] .mission-card,
+[data-theme='nexus'] .toolbar,
+[data-theme='nexus'] .npc-block {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+[data-theme='nexus'] .mission-card {
+  border-left: 4px solid var(--accent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-theme='nexus'] .mission-card:hover {
+  border-left-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+[data-theme='nexus'] .mission-outlier {
+  border-left-style: dashed;
+  opacity: 0.88;
+}
+
+[data-theme='nexus'] .city-dossier {
+  border-left: 4px solid var(--accent-strong);
+}
+
+[data-theme='nexus'] .mission-type-badge {
+  background: var(--accent);
+  color: #04101f;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+[data-theme='nexus'] .outlier-badge {
+  border-radius: 999px;
+}
+
+[data-theme='nexus'] .chip,
+[data-theme='nexus'] .toolbar-btn {
+  border-radius: 999px;
+}
+
+[data-theme='nexus'] .toolbar-btn:hover:not(:disabled) {
+  background: var(--bg-panel-alt);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='nexus'] .city-section ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  list-style: none;
+  padding-left: 0;
+}
+
+[data-theme='nexus'] .city-section li {
+  background: var(--bg-panel-alt);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 0;
+}
+
+[data-theme='nexus'] h1,
+[data-theme='nexus'] h2,
+[data-theme='nexus'] h3 {
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  [data-theme='nexus'] .city-section ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =====================================================================
+   Theme: Lab — flat, sharp-cornered, ruled like a spec sheet or an
+   instrument readout. No shadows, no glow. Missions become rows in one
+   continuous bordered ledger instead of separate floating cards, and
+   badges become bracketed text instead of pills.
+   ===================================================================== */
+
+/* Flat theme: strip glow/elevation everywhere it was applied — but deliberately not with a
+   blanket `* { box-shadow: none }`, since that would also wipe the keyboard focus ring below. */
+[data-theme='lab'] .wizard,
+[data-theme='lab'] .campaign-header,
+[data-theme='lab'] .city-dossier,
+[data-theme='lab'] .toolbar,
+[data-theme='lab'] .mission-card:hover,
+[data-theme='lab'] .chip-selected,
+[data-theme='lab'] .wizard-step-pill.active,
+[data-theme='lab'] button:hover:not(:disabled),
+[data-theme='lab'] button.primary,
+[data-theme='lab'] button.primary:hover:not(:disabled) {
+  box-shadow: none;
+}
+
+[data-theme='lab'] h1,
+[data-theme='lab'] h2,
+[data-theme='lab'] h3 {
+  text-shadow: none;
+}
+
+[data-theme='lab'] .wizard,
+[data-theme='lab'] .campaign-header,
+[data-theme='lab'] .city-dossier,
+[data-theme='lab'] .toolbar,
+[data-theme='lab'] .npc-block,
+[data-theme='lab'] .chip,
+[data-theme='lab'] .toolbar-btn,
+[data-theme='lab'] .mission-type-badge,
+[data-theme='lab'] .switch-track,
+[data-theme='lab'] .switch-thumb {
+  border-radius: 1px;
+}
+
+[data-theme='lab'] .toolbar-btn {
+  border: 1px solid var(--border);
+}
+
+[data-theme='lab'] .wizard-step-pill,
+[data-theme='lab'] .outlier-badge {
+  border-radius: 0;
+}
+
+[data-theme='lab'] .city-dossier {
+  border-width: 2px;
+}
+
+[data-theme='lab'] .city-header h2 {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* The mission timeline becomes one continuous bordered ledger: cards lose their
+   own borders/radius and instead get a shared outer frame with ruled rows. */
+[data-theme='lab'] .mission-timeline {
+  gap: 0;
+  border: 1px solid var(--border);
+}
+
+[data-theme='lab'] .mission-card {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+}
+
+[data-theme='lab'] .mission-timeline .mission-card:last-child {
+  border-bottom: none;
+}
+
+[data-theme='lab'] .mission-card:hover {
+  border-bottom-color: var(--accent-strong);
+  background: var(--bg-panel-alt);
+}
+
+[data-theme='lab'] .mission-outlier {
+  border-bottom-style: dashed;
+}
+
+/* Badges read as bracketed instrument-readout text instead of pills. */
+[data-theme='lab'] .mission-type-badge,
+[data-theme='lab'] .outlier-badge,
+[data-theme='lab'] .npc-tier {
+  background: none !important;
+  border: none !important;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+[data-theme='lab'] .mission-type-badge::before,
+[data-theme='lab'] .outlier-badge::before,
+[data-theme='lab'] .npc-tier::before {
+  content: '[';
+}
+
+[data-theme='lab'] .mission-type-badge::after,
+[data-theme='lab'] .outlier-badge::after,
+[data-theme='lab'] .npc-tier::after {
+  content: ']';
+}
+
+[data-theme='lab'] .npc-tier {
+  margin-left: 8px;
 }

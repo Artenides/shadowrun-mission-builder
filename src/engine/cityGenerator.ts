@@ -24,19 +24,29 @@ import type {
   RelationshipKind,
 } from './types';
 
-function tierFromSlider(urbanFrontier: number): CityTier {
-  if (urbanFrontier < 25) return 'Megacity Sprawl';
-  if (urbanFrontier < 60) return 'Major Metro';
-  if (urbanFrontier < 85) return 'Mid-size Hub';
-  return 'Frontier Town';
-}
-
 const POPULATION_RANGES: Record<CityTier, [number, number]> = {
   'Megacity Sprawl': [8_000_000, 25_000_000],
   'Major Metro': [1_500_000, 8_000_000],
   'Mid-size Hub': [150_000, 1_500_000],
   'Frontier Town': [5_000, 150_000],
 };
+
+/**
+ * City size (tier) is now its own direct choice (Q: "City size") rather than
+ * derived from the urban/frontier slider. The slider still matters, but only
+ * as a density/lawlessness lean WITHIN the chosen tier's population range —
+ * e.g. a frontier-leaning "Major Metro" sits toward the low end of Metro
+ * population, a sprawl-leaning one toward the high end.
+ */
+function populationForTier(tier: CityTier, urbanFrontier: number, rng: Rng): string {
+  const [popMin, popMax] = POPULATION_RANGES[tier];
+  const lean = urbanFrontier / 100; // 0 = dense sprawl .. 1 = frontier-ish
+  const target = popMax - (popMax - popMin) * lean;
+  const spread = (popMax - popMin) * 0.25;
+  const low = Math.max(popMin, Math.round(target - spread));
+  const high = Math.min(popMax, Math.round(target + spread));
+  return formatPopulation(intBetween(rng, low, high));
+}
 
 const DISTRICT_COUNT: Record<CityTier, number> = {
   'Megacity Sprawl': 6,
@@ -210,9 +220,8 @@ function generateDistricts(tier: CityTier, rng: Rng): District[] {
 }
 
 export function generateCity(inputs: CampaignInputs, rng: Rng): CityProfile {
-  const tier = tierFromSlider(inputs.urbanFrontier);
-  const [popMin, popMax] = POPULATION_RANGES[tier];
-  const population = formatPopulation(intBetween(rng, popMin, popMax));
+  const tier = inputs.citySize;
+  const population = populationForTier(tier, inputs.urbanFrontier, rng);
 
   const ambienceTags = pickN(rng, AMBIENCE_TAGS, intBetween(rng, 2, 3));
   const economicEngine = pickN(rng, ECONOMIC_ENGINES, intBetween(rng, 1, 2));

@@ -47,18 +47,6 @@ export function generateCampaign(inputs: CampaignInputs): Campaign {
   };
 }
 
-/** Re-rolls a single mission while keeping its thread-web role (outlier/cluster/stakeholder) intact. */
-export function regenerateMission(campaign: Campaign, index: number, nonce: number): Mission {
-  const rng = makeRng(`${campaign.seed}:remix:${index}:${nonce}`);
-  const plan = campaign.plans[index];
-  const prevType = index > 0 ? campaign.missions[index - 1].type : null;
-  const mission = assembleMission(index, campaign.inputs, campaign.city, plan, rng, prevType);
-  if (campaign.inputs.includeNpcs) {
-    mission.npcs = generateNpcsForMission(mission, campaign.inputs, campaign.city, rng);
-  }
-  return mission;
-}
-
 /** Re-rolls only the city's name, leaving districts/stakeholders/missions untouched. */
 export function regenerateCityName(campaign: Campaign, nonce: number): { cityName: string; title: string } {
   const rng = makeRng(`${campaign.seed}:cityname:${nonce}`);

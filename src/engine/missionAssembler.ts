@@ -16,6 +16,7 @@ import {
   THREAD_NOTE_PAYOFF,
 } from '../content/missionContent';
 import type { CampaignInputs, CityProfile, District, Mission, MissionPlan, MissionType, PartyRole, Stakeholder } from './types';
+import { agree, isPluralStakeholder, possessive } from './grammar';
 
 const ROLE_WEIGHTS: Partial<Record<PartyRole, Partial<Record<MissionType, number>>>> = {
   'Street Samurai': { 'Wet work': 3, 'Smash-and-grab': 2, 'Protection/Escort': 2 },
@@ -28,7 +29,10 @@ const ROLE_WEIGHTS: Partial<Record<PartyRole, Partial<Record<MissionType, number
 };
 
 function pickMissionType(inputs: CampaignInputs, prevType: MissionType | null, rng: Rng): MissionType {
-  const weights = MISSION_TYPES.map((type) => {
+  // Restrict to whatever the DM left checked in "Mission types to include" — falling back to
+  // the full list only if they somehow unchecked everything, so generation never breaks.
+  const candidates = inputs.enabledMissionTypes.length > 0 ? inputs.enabledMissionTypes : MISSION_TYPES;
+  const weights = candidates.map((type) => {
     let w = 1;
     for (const role of inputs.partyRoles) {
       w += ROLE_WEIGHTS[role]?.[type] ?? 0;
@@ -114,13 +118,14 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function buildHook(type: MissionType, hookLabel: string, location: ResolvedLocation, rng: Rng): string {
+function buildHook(type: MissionType, client: VisibleClient, location: ResolvedLocation, rng: Rng): string {
   let verb = pick(rng, VERB_PHRASES[type]);
   if (verb.includes('{asset}')) {
     verb = verb.replace('{asset}', pick(rng, ASSET_WORDS));
   }
   const deadline = chance(rng, 0.5) ? `, ${pick(rng, DEADLINE_CLAUSES)}` : '';
-  return capitalize(`${hookLabel} needs the party to ${verb} ${location.hookPhrase}${deadline}.`);
+  const needsVerb = agree(isPluralStakeholder(client.stakeholder), 'needs', 'need');
+  return capitalize(`${client.hookLabel} ${needsVerb} the party to ${verb} ${location.hookPhrase}${deadline}.`);
 }
 
 function pickComplications(inputs: CampaignInputs, rng: Rng): string[] {
@@ -133,14 +138,15 @@ function buildThreadNote(plan: MissionPlan, stakeholder: Stakeholder | null, rng
     return plan.redHerring ? pick(rng, OUTLIER_NOTES_RED_HERRING) : pick(rng, OUTLIER_NOTES_PURE);
   }
   const who = stakeholder ? stakeholder.name : 'a stakeholder yet to be named';
+  const isAre = agree(isPluralStakeholder(stakeholder), 'is', 'are');
   switch (plan.revealStage) {
     case 'plant':
       return `${pick(rng, THREAD_NOTE_PLANT)} (The thread traces back to ${who}.)`;
     case 'develop':
-      return `${pick(rng, THREAD_NOTE_DEVELOP)} (This confirms ${who}'s involvement, if the party is looking.)`;
+      return `${pick(rng, THREAD_NOTE_DEVELOP)} (This confirms ${possessive(who)} involvement, if the party is looking.)`;
     case 'payoff':
     default:
-      return `${pick(rng, THREAD_NOTE_PAYOFF)} (${who} is behind it — or at least, is who the trail leads to.)`;
+      return `${pick(rng, THREAD_NOTE_PAYOFF)} (${who} ${isAre} behind it — or at least, ${isAre} who the trail leads to.)`;
   }
 }
 
@@ -169,7 +175,7 @@ export function assembleMission(
     type,
     districtId: location.districtId,
     locationName: location.locationName,
-    hook: buildHook(type, client.hookLabel, location, rng),
+    hook: buildHook(type, client, location, rng),
     complications: pickComplications(inputs, rng),
     narrativeThreadNote: buildThreadNote(plan, threadStakeholder, rng),
     isOutlier: plan.isOutlier,

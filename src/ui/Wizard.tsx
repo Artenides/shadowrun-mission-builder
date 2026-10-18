@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import type { CampaignInputs, PartyRole } from '../engine/types';
+import type { CampaignInputs, MissionType, PartyRole } from '../engine/types';
 import {
   PARTY_ROLES,
   POWER_TIERS,
+  CITY_SIZES,
   REGIONS,
+  CITY_SCOPES,
   TONES,
   ANTAGONIST_FLAVORS,
   MORAL_COMPLEXITIES,
-  CITY_SCOPES,
+  MISSION_TYPE_OPTIONS,
+  OUTLIER_PRESETS,
 } from './questions';
 
 interface WizardProps {
@@ -15,7 +18,7 @@ interface WizardProps {
   onGenerate: (inputs: CampaignInputs) => void;
 }
 
-const STEPS = ['Party & Power', 'Setting & Tone', 'The City', 'Shape & Extras'];
+const STEPS = ['Party & Power', 'The City', 'Setting & Tone', 'Shape & Extras'];
 
 export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
   const [inputs, setInputs] = useState<CampaignInputs>(initialInputs);
@@ -33,15 +36,28 @@ export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
     });
   }
 
+  function toggleMissionType(type: MissionType) {
+    setInputs((prev) => {
+      const has = prev.enabledMissionTypes.includes(type);
+      const next = has ? prev.enabledMissionTypes.filter((t) => t !== type) : [...prev.enabledMissionTypes, type];
+      return { ...prev, enabledMissionTypes: next };
+    });
+  }
+
   const isLastStep = step === STEPS.length - 1;
 
   return (
     <div className="wizard">
       <div className="wizard-steps">
         {STEPS.map((label, i) => (
-          <div key={label} className={`wizard-step-pill${i === step ? ' active' : ''}${i < step ? ' done' : ''}`}>
+          <button
+            key={label}
+            type="button"
+            className={`wizard-step-pill${i === step ? ' active' : ''}${i < step ? ' done' : ''}`}
+            onClick={() => setStep(i)}
+          >
             {i + 1}. {label}
-          </div>
+          </button>
         ))}
       </div>
 
@@ -94,7 +110,37 @@ export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
 
         {step === 1 && (
           <section>
-            <h2>Setting &amp; Tone</h2>
+            <h2>The City</h2>
+            <p className="hint">
+              Every mission in this campaign shares one generated city and its stakeholders — that shared
+              cast is how the hidden connections between jobs actually get built.
+            </p>
+
+            <label className="field-label" htmlFor="cityName">
+              Home city name (optional — leave blank to generate one)
+            </label>
+            <input
+              id="cityName"
+              type="text"
+              value={inputs.cityNameOverride}
+              onChange={(e) => update('cityNameOverride', e.target.value)}
+              placeholder="Leave blank for a generated name"
+            />
+
+            <label className="field-label">City size</label>
+            <div className="radio-row">
+              {CITY_SIZES.map((size) => (
+                <button
+                  key={size.value}
+                  type="button"
+                  className={`chip${inputs.citySize === size.value ? ' chip-selected' : ''}`}
+                  onClick={() => update('citySize', size.value)}
+                  title={size.hint}
+                >
+                  {size.value}
+                </button>
+              ))}
+            </div>
 
             <label className="field-label">Continent / region</label>
             <div className="radio-row">
@@ -110,8 +156,29 @@ export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
               ))}
             </div>
 
+            <label className="field-label">City scope</label>
+            <div className="radio-row">
+              {CITY_SCOPES.map((scope) => (
+                <button
+                  key={scope.value}
+                  type="button"
+                  className={`chip${inputs.cityScope === scope.value ? ' chip-selected' : ''}`}
+                  onClick={() => update('cityScope', scope.value)}
+                  title={scope.hint}
+                >
+                  {scope.label}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {step === 2 && (
+          <section>
+            <h2>Setting &amp; Tone</h2>
+
             <label className="field-label" htmlFor="urbanFrontier">
-              Megacity sprawl &nbsp;&#8596;&nbsp; wastes / frontier
+              Dense sprawl &nbsp;&#8596;&nbsp; wastes / frontier lean
             </label>
             <input
               id="urbanFrontier"
@@ -166,42 +233,6 @@ export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
           </section>
         )}
 
-        {step === 2 && (
-          <section>
-            <h2>The City</h2>
-            <p className="hint">
-              Every mission in this campaign shares one generated city and its stakeholders — that shared
-              cast is how the hidden connections between jobs actually get built.
-            </p>
-
-            <label className="field-label" htmlFor="cityName">
-              Home city name (optional — leave blank to generate one)
-            </label>
-            <input
-              id="cityName"
-              type="text"
-              value={inputs.cityNameOverride}
-              onChange={(e) => update('cityNameOverride', e.target.value)}
-              placeholder="Leave blank for a generated name"
-            />
-
-            <label className="field-label">City scope</label>
-            <div className="radio-row">
-              {CITY_SCOPES.map((scope) => (
-                <button
-                  key={scope.value}
-                  type="button"
-                  className={`chip${inputs.cityScope === scope.value ? ' chip-selected' : ''}`}
-                  onClick={() => update('cityScope', scope.value)}
-                  title={scope.hint}
-                >
-                  {scope.label}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
         {step === 3 && (
           <section>
             <h2>Shape &amp; Extras</h2>
@@ -218,17 +249,34 @@ export default function Wizard({ initialInputs, onGenerate }: WizardProps) {
               onChange={(e) => update('missionCount', Number(e.target.value))}
             />
 
-            <label className="field-label" htmlFor="outlierRatio">
-              Tightly woven &nbsp;&#8596;&nbsp; loosely connected (outliers)
-            </label>
-            <input
-              id="outlierRatio"
-              type="range"
-              min={0}
-              max={100}
-              value={inputs.outlierRatio}
-              onChange={(e) => update('outlierRatio', Number(e.target.value))}
-            />
+            <label className="field-label">Mission types to include</label>
+            <div className="chip-grid">
+              {MISSION_TYPE_OPTIONS.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`chip${inputs.enabledMissionTypes.includes(type) ? ' chip-selected' : ''}`}
+                  onClick={() => toggleMissionType(type)}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+
+            <label className="field-label">How tightly woven should the campaign be?</label>
+            <div className="radio-row">
+              {OUTLIER_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={`chip${inputs.outlierRatio === preset.value ? ' chip-selected' : ''}`}
+                  onClick={() => update('outlierRatio', preset.value)}
+                  title={preset.hint}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
 
             <label className="field-label toggle-row">
               <input

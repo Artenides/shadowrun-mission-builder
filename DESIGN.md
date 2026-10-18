@@ -10,7 +10,7 @@ A browser-based tool for GMs ("DMs") running **Shadowrun: Anarchy 2.0** campaign
 - **Hosting:** GitHub Pages only — static files (HTML/CSS/JS), no server, no database, $0/month.
 - **Confidentiality:** The DM should not be able to trivially extract "the list of all missions" or "the generation recipe" from the site. Per the chosen architecture (see §3), this is handled by *not having* a flat content list in the first place, plus standard build-time obfuscation — **not** by any kind of real access control, which is impossible on a static site.
 - **Breadth:** The tool must stay useful after hundreds of generations — no obvious repeats, no "I've seen this one before" feeling.
-- **Input budget:** No more than ~10–15 questions. Every question must measurably change the output or it gets cut.
+- **Input budget:** Originally capped at ~10–15 questions; now at 17 after adding direct control over city size and which mission types are in play (see §4) — both earned their slot because they measurably reshape the output, but the budget is no longer a hard ceiling if a future question clears that same bar.
 - **Output budget:** A DM should be able to generate a usable campaign in under two minutes of reading.
 
 ## 3. Architecture decision: static-only, generative-not-stored
@@ -32,27 +32,52 @@ We are explicit with ourselves that this is "speed-bump," not "safe." The real a
 
 ## 4. DM Questionnaire
 
-Fifteen inputs — the full budget — mixing select/slider/multi-select/optional-text so the form is fast to fill but expressive. Each is tagged with which generation stage it feeds.
+Seventeen inputs, grouped into four wizard steps that match how a DM actually thinks about setup: who's playing, where they're based, what kind of story this is, and how the campaign should be shaped. The DM can jump directly to any step rather than only stepping through Next/Back — useful for tweaking one answer without re-walking the whole form. Each question is tagged with which generation stage it feeds.
+
+**Step 1 — Party & Power**
 
 | # | Question | Type | Feeds |
 |---|---|---|---|
 | 1 | Party composition (choose all that apply): Street Samurai / Mage / Decker / Rigger / Face / Adept / Technomancer / Mixed-generalist | multi-select | mission type weighting, NPC opposition design |
 | 2 | Party size | number (1–8) | encounter scaling, NPC count |
 | 3 | Power/Street-cred tier: Street-level / Professional / Veteran / Elite | single-select | threat tier, stakes, antagonist scale |
-| 4 | Continent/region: North America / South America / Europe / Asia / Africa / Oceania & Pacific Rim / Off-grid (orbital, matrix-deep, astral) | single-select | location flavor tables, city generation (§5) |
-| 5 | Urban vs. frontier lean (slider: Megacity sprawl ↔ Wastes/Barrens/rural) | slider | location sub-tables, travel complications, city tier (§5) |
-| 6 | Number of missions (3–10) | number | campaign length, thread-graph size |
-| 7 | Campaign tone: Gritty noir / Pulpy action / Corporate intrigue / Horror-tinged / Comedic chaos | single-select | tone weighting on description/complication wording |
-| 8 | Primary antagonist flavor: Megacorp / Organized crime (mob/yakuza/triad) / Gang / Insect spirits or horror / Government-black-ops / Dragon/high-powered-metahuman / Let the tool decide | single-select | faction web generation, stakeholder mix (§5) |
-| 9 | Moral complexity: Clear-cut villains / Shades of grey / DM wants at least one "the real client is the bad guy" twist | single-select | twist-fragment selection |
-| 10 | Outlier ratio: Tightly woven (few/no outliers) ↔ Loosely connected (several standalone flavor runs) | slider | thread-graph density |
-| 11 | Include NPC stat blocks? | toggle | NPC generation stage on/off |
-| 12 | NPC crunch level: Quick reference only / Full Anarchy stat blocks | single-select (shown if #11 is on) | NPC detail depth |
-| 13 | Optional seed phrase / campaign name (free text, blank = random) | optional text | RNG seed, flavor title |
-| 14 | Home city name (optional — leave blank to generate one) | optional text | city name override (§5) |
-| 15 | City scope: Single anchor city (missions orbit one city) / Multiple cities & roaming jobs | single-select | city generation scope, thread-web geography (§5, §6) |
 
-With this pair added, the budget from §2 is maxed out deliberately — a named home city with real stakeholders does more for mission grounding than any further individual mission-level dial would, so it earned the last two slots. Rejected candidates: specific corp names (generated instead, see §5.5), exact calendar year/timeline placement, individual character backstories, magic-vs-tech setting ratio (folded into tone/antagonist flavor instead).
+**Step 2 — The City**
+
+| # | Question | Type | Feeds |
+|---|---|---|---|
+| 4 | Home city name (optional — leave blank to generate one) | optional text | city name override (§5) |
+| 5 | City size: Megacity Sprawl / Major Metro / Mid-size Hub / Frontier Town | single-select | city tier — population range, district count, stakeholder roster (§5) |
+| 6 | Continent/region: North America / South America / Europe / Asia / Africa / Oceania & Pacific Rim / Off-grid (orbital, matrix-deep, astral) | single-select | location flavor tables, city name generation (§5) |
+| 7 | City scope: Single anchor city (missions orbit one city) / Multiple cities & roaming jobs | single-select | city generation scope, thread-web geography (§5, §6) |
+
+City size (Q5) used to be derived from a slider; it's now its own direct choice, since "how big is this city" is a bigger lever on the output than any slider position communicated clearly.
+
+**Step 3 — Setting & Tone**
+
+| # | Question | Type | Feeds |
+|---|---|---|---|
+| 8 | Density/lawlessness lean (slider: dense sprawl ↔ wastes/frontier) | slider | where population lands *within* the chosen city size's range (§5), travel complications |
+| 9 | Campaign tone: Gritty noir / Pulpy action / Corporate intrigue / Horror-tinged / Comedic chaos | single-select | tone weighting on description/complication wording |
+| 10 | Primary antagonist flavor: Megacorp / Organized crime (mob/yakuza/triad) / Gang / Insect spirits or horror / Government-black-ops / Dragon/high-powered-metahuman / Let the tool decide | single-select | faction web generation, stakeholder mix (§5) |
+| 11 | Moral complexity: Clear-cut villains / Shades of grey / DM wants at least one "the real client is the bad guy" twist | single-select | twist-fragment selection |
+
+Q8 no longer sets the city's tier (that's Q5 now) — it only leans the generated population toward the dense or sparse end of whatever tier was chosen, and still colors travel-complication flavor.
+
+**Step 4 — Shape & Extras**
+
+| # | Question | Type | Feeds |
+|---|---|---|---|
+| 12 | Number of missions (3–10) | number | campaign length, thread-graph size |
+| 13 | Mission types to include (all 11 types, all checked by default) | multi-select | restricts the mission-type pool the generator draws from — lets a DM lock out types that don't fit their table |
+| 14 | How tightly woven: Tightly woven / Balanced / Loosely connected | single-select (3 presets, not a free slider) | thread-graph density |
+| 15 | Include NPC stat blocks? | toggle | NPC generation stage on/off |
+| 16 | NPC crunch level: Quick reference only / Full Anarchy stat blocks | single-select (shown if #15 is on) | NPC detail depth |
+| 17 | Optional seed phrase / campaign name (free text, blank = random) | optional text | RNG seed, flavor title |
+
+Q14 used to be a continuous 0–100 slider; a free slider implied more precision than the thread-web logic (§6) actually has (it only ever picks from ~3 effective density bands), so it's now a direct 3-way choice instead of a slider that silently rounded off.
+
+Rejected candidates: specific corp names (generated instead, see §5.5), exact calendar year/timeline placement, individual character backstories, magic-vs-tech setting ratio (folded into tone/antagonist flavor instead).
 
 ## 5. The City
 
@@ -60,15 +85,15 @@ A city isn't just flavor text — it's where the mission engine gets its nouns. 
 
 ### 5.1 When it's generated
 
-Once per campaign, inside Campaign Skeleton (pipeline stage [1], §6) — before any individual mission is assembled. In a single-city campaign (Q15), every mission pulls its NPCs, locations, and hooks from this one generated city. In a multi-city/roaming campaign, a thinner secondary city profile is generated per away-mission, and outliers (Q10) may skip the stakeholder pool entirely for a clean break from the main arc.
+Once per campaign, inside Campaign Skeleton (pipeline stage [1], §6) — before any individual mission is assembled. In a single-city campaign (Q7), every mission pulls its NPCs, locations, and hooks from this one generated city. In a multi-city/roaming campaign, a thinner secondary city profile is generated per away-mission, and outliers (Q14) may skip the stakeholder pool entirely for a clean break from the main arc.
 
 ### 5.2 City profile schema
 
 ```
 CITY PROFILE
 Name:                procedurally generated, region-flavored
-                      (or DM-supplied override, Q14)
-Region/Country:       inherited from Q4
+                      (or DM-supplied override, Q4)
+Region/Country:       inherited from Q6
 Tier:                 Megacity Sprawl | Major Metro | Mid-size Hub | Frontier Town
 Population:           tier-appropriate range (e.g., Megacity: 8-25M)
 Metahuman mix:        % Human / Elf / Dwarf / Ork / Troll (tier + region weighted)
@@ -123,7 +148,7 @@ Relationship:      at least one tagged link to another stakeholder
                    (rivalry, alliance, debt, infiltration)
 ```
 
-Per city tier, generate roughly: 1–2 megacorps/AA corps, 1–2 organized crime or gang powers, 1 government/authority entity, 1 wildcard faction (weighted by Q8's antagonist flavor). Frontier Towns skew toward gangs/local corp/government only, skipping megacorps unless an absentee-landlord megacorp angle is specifically interesting.
+Per city tier, generate roughly: 1–2 megacorps/AA corps, 1–2 organized crime or gang powers, 1 government/authority entity, 1 wildcard faction (weighted by Q10's antagonist flavor). Frontier Towns skew toward gangs/local corp/government only, skipping megacorps unless an absentee-landlord megacorp angle is specifically interesting.
 
 ### 5.5 How the city feeds mission generation
 
@@ -162,7 +187,7 @@ Inputs + Seed
        recurring district/object, rumor-payoff, false-flag client
      - stagger reveals: a link is planted as a minor, easy-to-miss detail
        in an early mission and only becomes legible 2–3 missions later
-     - mark a DM-controlled fraction of missions (from Q10) as outliers:
+     - mark a DM-controlled fraction of missions (from Q14) as outliers:
        either "unconnected flavor" or "red herring that LOOKS connected but isn't"
      │
      ▼
@@ -178,7 +203,7 @@ Inputs + Seed
 [4] NPC population (if enabled)
      - derive threat tier from power tier + stakeholder power level (§5.4) + mission type
      - generate 1 named antagonist/contact + mook squad profile per mission as relevant
-     - crunch level per Q12
+     - crunch level per Q16
      │
      ▼
 [5] Narrative pass
@@ -229,16 +254,16 @@ Special:          1–2 tagged abilities in plain language
 Quick line:       one-sentence personality/behavior note for improv
 ```
 
-Mook squads are generated as a single statline with a headcount rather than individual blocks, matching Anarchy's "mob" handling. Quick-reference mode (Q12) shows only Dice Pool/Soak/Condition/Special; full mode adds Edge and gear notes.
+Mook squads are generated as a single statline with a headcount rather than individual blocks, matching Anarchy's "mob" handling. Quick-reference mode (Q16) shows only Dice Pool/Soak/Condition/Special; full mode adds Edge and gear notes.
 
 ## 9. UI/UX flow
 
 1. **Landing** — one-paragraph pitch + "Build a campaign" button.
-2. **Wizard** — the 15 questions, grouped into 4 short steps (Party & Power / Setting & Tone / City / Shape & Extras) so it doesn't feel like one long form.
+2. **Wizard** — the 17 questions, grouped into 4 short steps in the order a DM actually plans in (Party & Power / The City / Setting & Tone / Shape & Extras). The step pills are clickable, not just a progress indicator — the DM can jump straight to any step instead of walking Next/Back through all four, which matters once they're tweaking one answer on a campaign they've already mostly set up.
 3. **Generating** — brief animated transition (purely cosmetic; generation is near-instant client-side).
 4. **Campaign view** — campaign title + 1-paragraph overarching summary at top, then a **City Dossier** card (name, population, tier, districts, stakeholders — §5) that stays pinned/collapsible for reference, then mission cards in a vertical timeline, collapsed to title+type+one-liner by default, expandable for full detail. A toggle shows/hides the "narrative thread note" layer (DM spoiler) separately from player-facing text.
 5. **Regenerate single mission** — button per card to re-roll just that mission while keeping its thread-web role (so connections stay intact but flavor changes). The City Dossier has its own regenerate-by-element controls (name only / districts only / stakeholders only / everything) per §5.7.
-6. **Export** — "Copy as Markdown" and "Print/PDF view" (browser print stylesheet), both including the City Dossier alongside the missions. A "Share seed" button copies a URL with inputs+seed encoded in the query string — no backend storage needed, and regenerating from that URL reproduces the identical campaign and city.
+6. **Export** — "Copy as Markdown" and "Print/PDF view" (browser print stylesheet), both including the City Dossier alongside the missions. A "Share link" button copies a URL carrying one compact token — all 17 inputs plus the active visual theme, bit-packed into a few bytes and base64url-encoded — rather than a dozen-plus spelled-out query params. No backend storage needed, and opening that URL reproduces the identical campaign, city, and theme.
 
 ## 10. Tech stack recommendation
 
@@ -272,5 +297,5 @@ Mook squads are generated as a single statline with a headcount rather than indi
 ## 14. Open questions for next pass
 
 - Exact fragment-pool sizes per category (first content-authoring pass will tell us if ~300–500 fragments feels sufficiently varied, or if we need more before launch) — city/corp/gang name generators included.
-- Whether "Off-grid" region (Q4) needs meaningfully different mission-type weighting (e.g., less smash-and-grab, more infiltration/astral) — likely yes, flag for content design. Off-grid campaigns may need a non-city "Home Base" variant of §5 (an orbital habitat, a Matrix host, a ship) instead of a literal city.
+- Whether "Off-grid" region (Q6) needs meaningfully different mission-type weighting (e.g., less smash-and-grab, more infiltration/astral) — likely yes, flag for content design. Off-grid campaigns may need a non-city "Home Base" variant of §5 (an orbital habitat, a Matrix host, a ship) instead of a literal city.
 - Final visual identity/branding (not blocking — can ship with a clean generic dark theme first).

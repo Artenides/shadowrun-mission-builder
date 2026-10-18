@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import type { Campaign, CampaignInputs } from './engine/types';
 import { DEFAULT_INPUTS } from './ui/questions';
-import { generateCampaign, regenerateMission, regenerateCityName } from './engine/generateCampaign';
-import { readInputsFromLocation, buildShareUrl } from './utils/seedUrl';
+import { DEFAULT_THEME, type ThemeId } from './ui/themes';
+import { generateCampaign, regenerateCityName } from './engine/generateCampaign';
+import { readSharedStateFromLocation, buildShareUrl } from './utils/seedUrl';
 import Wizard from './ui/Wizard';
 import CampaignView from './ui/CampaignView';
+import ThemeSwitcher from './ui/ThemeSwitcher';
 
 const STORAGE_KEY = 'shadowline:last-inputs';
+const THEME_STORAGE_KEY = 'shadowline:theme';
 
 function loadStoredInputs(): CampaignInputs {
   try {
@@ -19,16 +22,38 @@ function loadStoredInputs(): CampaignInputs {
   return DEFAULT_INPUTS;
 }
 
-function initialCampaignFromUrl(): Campaign | null {
-  const fromUrl = readInputsFromLocation(DEFAULT_INPUTS);
-  return fromUrl ? generateCampaign(fromUrl) : null;
+function loadStoredTheme(): ThemeId {
+  try {
+    const raw = localStorage.getItem(THEME_STORAGE_KEY);
+    if (raw === 'matrix' || raw === 'nexus' || raw === 'lab') return raw;
+  } catch {
+    // ignore
+  }
+  return DEFAULT_THEME;
 }
 
+// Decoded once per page load — both the initial campaign and the initial theme
+// come from this same shared token, so it's read a single time rather than twice.
+const sharedState = readSharedStateFromLocation(DEFAULT_INPUTS);
+
 export default function App() {
-  const [campaign, setCampaign] = useState<Campaign | null>(initialCampaignFromUrl);
-  const [wizardInputs, setWizardInputs] = useState<CampaignInputs>(() => campaign?.inputs ?? loadStoredInputs());
-  const [missionNonces, setMissionNonces] = useState<Record<number, number>>({});
+  const [campaign, setCampaign] = useState<Campaign | null>(() =>
+    sharedState ? generateCampaign(sharedState.inputs) : null,
+  );
+  const [wizardInputs, setWizardInputs] = useState<CampaignInputs>(
+    () => campaign?.inputs ?? sharedState?.inputs ?? loadStoredInputs(),
+  );
   const [cityNonce, setCityNonce] = useState(0);
+  const [theme, setTheme] = useState<ThemeId>(() => sharedState?.theme ?? loadStoredTheme());
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
 
   function handleGenerate(next: CampaignInputs) {
     setWizardInputs(next);
@@ -39,22 +64,12 @@ export default function App() {
     }
     const result = generateCampaign(next);
     setCampaign(result);
-    setMissionNonces({});
     setCityNonce(0);
-    window.history.replaceState(null, '', buildShareUrl(result.inputs));
+    window.history.replaceState(null, '', buildShareUrl(result.inputs, theme));
   }
 
   function handleRegenerateAll() {
     handleGenerate({ ...wizardInputs, seedPhrase: '' });
-  }
-
-  function handleRegenerateMission(index: number) {
-    if (!campaign) return;
-    const nonce = (missionNonces[index] ?? 0) + 1;
-    const mission = regenerateMission(campaign, index, nonce);
-    const missions = campaign.missions.map((m, i) => (i === index ? mission : m));
-    setCampaign({ ...campaign, missions });
-    setMissionNonces({ ...missionNonces, [index]: nonce });
   }
 
   function handleRegenerateCityName() {
@@ -69,28 +84,34 @@ export default function App() {
     setCampaign(null);
   }
 
+  function handleThemeChange(next: ThemeId) {
+    setTheme(next);
+    // Keep the address bar's share link in sync so a copied/bookmarked URL always
+    // reproduces both the campaign and the theme it was viewed in.
+    if (campaign) {
+      window.history.replaceState(null, '', buildShareUrl(campaign.inputs, next));
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
         <h1>Shadowline</h1>
         <p className="tagline">An Anarchy 2.0 campaign &amp; mission generator</p>
+        <ThemeSwitcher theme={theme} onChange={handleThemeChange} />
       </header>
 
       {campaign ? (
         <CampaignView
           campaign={campaign}
+          theme={theme}
           onRegenerateAll={handleRegenerateAll}
-          onRegenerateMission={handleRegenerateMission}
           onRegenerateCityName={handleRegenerateCityName}
           onEditInputs={handleEditInputs}
         />
       ) : (
         <Wizard initialInputs={wizardInputs} onGenerate={handleGenerate} />
       )}
-
-      <footer className="app-footer">
-        <p>Generated client-side, nothing leaves your browser except what you choose to copy or share.</p>
-      </footer>
     </div>
   );
 }
