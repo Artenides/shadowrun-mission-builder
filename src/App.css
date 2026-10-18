@@ -1,0 +1,422 @@
+.app-shell {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  font-size: 2.4rem;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.tagline {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.app-footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 48px;
+}
+
+/* ---------- Wizard ---------- */
+
+.wizard {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.wizard-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.wizard-step-pill {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.wizard-step-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.wizard-step-pill.done {
+  color: var(--text);
+}
+
+.wizard-panel section h2 {
+  margin-bottom: 4px;
+}
+
+.field-label {
+  display: block;
+  margin: 18px 0 6px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  background: var(--bg-panel-alt);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.chip-grid, .radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip-selected {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+input[type='text'] {
+  width: 100%;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+
+input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+button {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--accent-strong);
+  color: #04221f;
+  border-color: var(--accent-strong);
+  font-weight: 600;
+}
+
+/* ---------- Campaign view ---------- */
+
+.campaign-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.status-message {
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.campaign-header {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.campaign-summary {
+  color: var(--text);
+}
+
+.campaign-seed {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+/* ---------- City dossier ---------- */
+
+.city-dossier {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.city-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  padding: 2px 8px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.city-tagline, .city-ambience, .city-economy, .city-demographics {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.city-section {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.city-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.city-section ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.city-section li {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.dm-only {
+  color: var(--warn);
+  font-size: 0.82rem;
+}
+
+/* ---------- Mission timeline ---------- */
+
+.mission-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mission-outlier {
+  border-style: dashed;
+}
+
+.mission-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.mission-index {
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.mission-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.mission-type-badge {
+  font-size: 0.75rem;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 12px;
+  padding: 3px 10px;
+}
+
+.outlier-badge {
+  font-size: 0.7rem;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+.mission-card-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.mission-card-body.collapsed {
+  display: none;
+}
+
+.mission-location {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+.mission-hook {
+  font-size: 1rem;
+  margin: 8px 0 12px;
+}
+
+.mission-complications ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.mission-thread-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-panel-alt);
+  border-left: 3px solid var(--warn);
+  font-size: 0.85rem;
+}
+
+.mission-npcs {
+  margin-top: 16px;
+}
+
+.regenerate-button {
+  margin-top: 16px;
+  font-size: 0.8rem;
+}
+
+/* ---------- NPC blocks ---------- */
+
+.npc-block {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+}
+
+.npc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.npc-role {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.npc-tier {
+  font-size: 0.7rem;
+  border-radius: 10px;
+  padding: 2px 8px;
+  margin-left: auto;
+}
+
+.npc-tier-mook {
+  background: rgba(138, 141, 153, 0.2);
+  color: var(--text-dim);
+}
+
+.npc-tier-named {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.npc-tier-boss {
+  background: rgba(224, 84, 84, 0.15);
+  color: var(--danger);
+}
+
+.npc-stats {
+  display: flex;
+  gap: 14px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.npc-specials {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+}
+
+.npc-quickline {
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin-top: 6px;
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .campaign-toolbar, .regenerate-button, .icon-button, .expand-caret {
+    display: none !important;
+  }
+  .mission-card-body.collapsed {
+    display: block !important;
+  }
+}
