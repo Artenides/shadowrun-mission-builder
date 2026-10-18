@@ -24,6 +24,13 @@
   margin: 0;
 }
 
+.app-footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  margin-top: 48px;
+}
+
 /* ---------- Theme switcher ---------- */
 
 .theme-switcher {

@@ -112,6 +112,13 @@ export default function App() {
       ) : (
         <Wizard initialInputs={wizardInputs} onGenerate={handleGenerate} />
       )}
+
+      <footer className="app-footer">
+        <p>
+          This is an unofficial fan project. Not affiliated with or endorsed by Catalyst Game Labs or Black Book Editions.
+          Shadowrun and Anarchy are trademarks of their respective owners.
+        </p>
+      </footer>
     </div>
   );
 }
